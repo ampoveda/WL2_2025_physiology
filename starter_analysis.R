@@ -278,3 +278,148 @@ write_csv(merged, "Data/merged_licor_data.csv")
 cat("\nDone. Merged data written to Data/merged_licor_data.csv\n")
 cat("Figures written to figures/:\n")
 print(list.files("figures", full.names = TRUE))
+
+data = read_csv("Data/merged_licor_data.csv")
+
+P1 = data |>
+  filter(date == "2025-09-04") |>
+  ggplot(aes(x = phi_ps2, y = qamb)) +
+  geom_point() +
+  theme_minimal()
+print(P1)
+ggsave("figures/Scatter.png",P1)
+
+P2 = data |>
+  filter(date == "2025-07-23") |>
+  ggplot(aes(x = phi_ps2, y = qamb)) +
+  geom_point() +
+  theme_minimal()
+print(P2)
+ggsave("figures/Scatter2.png",P2)
+
+P1 = data |>
+  filter(date == as.Date("2025-09-04")) |>
+  ggplot(aes(x = phi_ps2, y = qamb)) +
+  geom_point() +
+  theme_minimal()
+print(P1)
+ggsave("figures/Scatter.png",P1)
+
+P3 = data |>
+  filter(date == "2025-08-07") |>
+  ggplot(aes(x = phi_ps2, y = qamb)) +
+  geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
+  theme_minimal()
+print(P3)
+ggsave("figures/Scatter3.png",P3)
+
+P1 = data |>
+  filter(date == "2025-08-07") |>
+  ggplot(aes(x = phi_ps2, y = qamb)) +
+  geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
+  theme_minimal()
+print(P1)
+ggsave("figures/Scatter2025-08-07.png",P1)
+
+P1 = data |>
+  filter(date == "2025-07-23") |>
+  ggplot(aes(x = phi_ps2, y = qamb)) +
+  geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
+  theme_minimal()
+print(P1)
+ggsave("figures/Scatter2025-07-23.png",P1)
+
+P2 = data |>
+  filter(date == "2025-08-07") |>
+  ggplot(aes(x = phi_ps2, y = qamb)) +
+  geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
+  theme_minimal()
+print(P2)
+ggsave("figures/Scatter2025-08-07.png",P2)
+
+
+P3 = data |>
+  filter(date == "2025-08-28") |>
+  ggplot(aes(x = phi_ps2, y = qamb)) +
+  geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
+  theme_minimal()
+print(P3)
+ggsave("figures/Scatter2025-08-28.png",P3)
+
+P4 = data |>
+  filter(date == "2025-09-04") |>
+  ggplot(aes(x = phi_ps2, y = qamb)) +
+  geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
+  theme_minimal()
+print(P4)
+ggsave("figures/Scatter2025-09-04.png",P4)
+
+P5 = data |>
+  filter(date == "2025-09-24") |>
+  ggplot(aes(x = phi_ps2, y = qamb)) +
+  geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
+  theme_minimal()
+print(P5)
+ggsave("figures/Scatter2025-09-24.png",P5)
+
+P6 = data |>
+  filter(date == "2025-09-24", etr >= 0) |>
+  ggplot(aes(x = etr, y = qamb)) +
+  geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
+  theme_minimal()
+print(P6)
+ggsave("figures/etr vs qamb2025-09-24.2.png",P6)
+
+P7 = data |>
+  filter(date == "2025-09-04", etr >= 0) |>
+  ggplot(aes(x = etr, y = qamb)) +
+  geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
+  theme_minimal()
+print(P7)
+ggsave("figures/etr vs qamb2025-09-04.png",P7)
+
+P8 = data |>
+  filter(date == "2025-08-28", etr >= 0) |>
+  ggplot(aes(x = etr, y = qamb)) +
+  geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
+  theme_minimal()
+print(P8)
+ggsave("figures/etr vs qamb2025-08-28.png",P8)
+
+P9 = data |>
+  filter(date == "2025-08-07", etr >= 0) |>
+  ggplot(aes(x = etr, y = qamb)) +
+  geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
+  theme_minimal()
+print(P9)
+ggsave("figures/etr vs qamb2025-08-07.png",P9)
+
+P10 = data |>
+  filter(date == "2025-07-23", etr >= 0) |>
+  ggplot(aes(x = etr, y = qamb, color = Type)) +
+  geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
+  theme_minimal()
+print(P10)
+ggsave("figures/etr vs qamb2025-07-23.png",P10)
+
+metadata_723 = read_csv("metadata/20250723.csv")
+metadata_904 = read_csv("metadata/20250904.csv")
+x_nonum <- which(is.na(as.numeric(metadata_904$Unique.ID)))
+x_nonum
+metadata_723 = left_join(x = metadata_723, y = metadata_904[c("Unique.ID", "Genotype", "Type")], by = "Unique.ID")
+#master_meta <- read_csv("fill in file name") #this file will have all the genotype and type info for each individual (unique ID)
+#data_geno = left_join(x = data, y = master_meta, by = Unique.ID")
+x_nonum <- which(is.na(as.numeric(merged$unique_id)))
+x_nonum
+
+# Below we are figuring out sample sizes for each parent genotype and each date
+date_geno_parent_n <- data_geno |> 
+  filter(Type=="Parent") |> # take  only the rows where the type is Parent
+  group_by(date, Type, Genotype) |> #for each date and genotype
+  summarise(TotalIndivs=n()) #count the number of rows 
+date_geno_parent_n_overall <- data_geno |> 
+  filter(Type=="Parent") |> # take  only the rows where the type is Parent
+  group_by(Type, Genotype) |> #for each genotype
+  summarise(TotalIndivs=n()) #count the number of rows 
+
+metadata_807 = read_csv("metadata/20250807.csv")
