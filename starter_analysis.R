@@ -362,39 +362,39 @@ P5 = data |>
 print(P5)
 ggsave("figures/Scatter2025-09-24.png",P5)
 
-P6 = data |>
+P6 = data_geno |>
   filter(date == "2025-09-24", etr >= 0) |>
-  ggplot(aes(x = etr, y = qamb)) +
+  ggplot(aes(x = etr, y = qamb, color = Type)) +
   geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
   theme_minimal()
 print(P6)
 ggsave("figures/etr vs qamb2025-09-24.2.png",P6)
 
-P7 = data |>
+P7 = data_geno |>
   filter(date == "2025-09-04", etr >= 0) |>
-  ggplot(aes(x = etr, y = qamb)) +
+  ggplot(aes(x = etr, y = qamb, color = Type)) +
   geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
   theme_minimal()
 print(P7)
 ggsave("figures/etr vs qamb2025-09-04.png",P7)
 
-P8 = data |>
+P8 = data_geno |>
   filter(date == "2025-08-28", etr >= 0) |>
-  ggplot(aes(x = etr, y = qamb)) +
+  ggplot(aes(x = etr, y = qamb, color = Type)) +
   geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
   theme_minimal()
 print(P8)
 ggsave("figures/etr vs qamb2025-08-28.png",P8)
 
-P9 = data |>
+P9 = data_geno |>
   filter(date == "2025-08-07", etr >= 0) |>
-  ggplot(aes(x = etr, y = qamb)) +
+  ggplot(aes(x = etr, y = qamb, color = Type)) +
   geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
   theme_minimal()
 print(P9)
 ggsave("figures/etr vs qamb2025-08-07.png",P9)
 
-P10 = data |>
+P10 = data_geno |>
   filter(date == "2025-07-23", etr >= 0) |>
   ggplot(aes(x = etr, y = qamb, color = Type)) +
   geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
@@ -407,8 +407,12 @@ metadata_904 = read_csv("metadata/20250904.csv")
 x_nonum <- which(is.na(as.numeric(metadata_904$Unique.ID)))
 x_nonum
 metadata_723 = left_join(x = metadata_723, y = metadata_904[c("Unique.ID", "Genotype", "Type")], by = "Unique.ID")
-#master_meta <- read_csv("fill in file name") #this file will have all the genotype and type info for each individual (unique ID)
-#data_geno = left_join(x = data, y = master_meta, by = Unique.ID")
+
+master_meta <- read_csv("Data/2025_Genotype_Type_Info.csv") |> rename(unique_id = Unique.ID) |> mutate(unique_id = as.numeric(unique_id)) #this file will have all the genotype and type info for each individual (unique ID)
+
+
+data_geno = left_join(x = data, y = master_meta, by = "unique_id")
+
 x_nonum <- which(is.na(as.numeric(merged$unique_id)))
 x_nonum
 
@@ -422,4 +426,51 @@ date_geno_parent_n_overall <- data_geno |>
   group_by(Type, Genotype) |> #for each genotype
   summarise(TotalIndivs=n()) #count the number of rows 
 
-metadata_807 = read_csv("metadata/20250807.csv")
+
+ggplot(data_geno,aes(x = date, y = Genotype)) + geom_col() + scale_x_date(date_labels = "%Y-%m-%d")
+
+ggplot(data_geno, aes(x = date, y = Genotype)) +
+  geom_col() +
+  scale_x_date(date_labels = "%Y-%m-%d")
+
+ggplot(data_geno, aes(x = date, y = Genotype)) +
+  geom_col() +
+  scale_x_date(date_breaks = "1 month", date_labels = "%Y-%m")
+head(data)
+library(ggplot2)
+# I try to see if there is any difference in the axis if I plot a line vs a bar plot
+
+ggplot(data_geno,aes(x = date, y = Genotype)) + scale_x_date(date_labels = "%Y-%m-%d") +  geom_col()
+
+
+ggplot(data_geno, aes(x = date, y = Genotype)) +
+  geom_line()
+# I found that the line plot uses the correct format of the date I want so now I have to fix it for the bar plot
+
+str(data_geno$Genotype)
+ggplot(data_geno, aes(x = date, fill = Genotype)) + geom_bar() + scale_x_date(date_breaks = "1 month", date_labels = "%Y-%m")
+ggplot(date_geno_parent_n, aes(x = date, fill = Genotype)) + geom_bar() + scale_x_date(date_breaks = "1 month", date_labels = "%Y-%m")
+
+# I was able to finally get the correct dates to show and now am customizing the axis to show all five dates instead of breaking it at monthly breaks
+unique_dates <- sort(unique(data_geno$date))
+
+ggplot(data_geno, aes(x = date, fill = Genotype)) + geom_bar() + scale_x_date(breaks = unique_dates, date_labels = "%Y-%m-%d") + theme(axis.text.x = element_text(angle = 45, hjust = 1))  
+ggsave("figures/Genotype Variation Across Dates.png")
+
+ggplot(date_geno_parent_n, aes(x = date, fill = Genotype)) + geom_bar() + scale_x_date(breaks = unique_dates, date_labels = "%Y-%m-%d") + theme(axis.text.x = element_text(angle = 45, hjust = 1))  
+ggsave("figures/Parental Genotypes Across Dates.png")
+
+library(ggplot2)
+
+#I am going to try and make a plot using ggplot2 and plot Qamb vs etr based on genotype. 
+
+ggplot(data_geno, aes( x = phi_ps2, y = qamb, color = Genotype, group = Genotype)) + geom_line(size = 1.2) + geom_point(size = 2) + theme_classic()
+
+# This next line of code gives the average qamb across the dates 
+ggplot(data_geno, aes( x = phi_ps2, y = qamb, color = Genotype)) + stat_summary(fun = mean, geom = "line", size = 1.2) + stat_summary(fun = mean, geom = "point", size = 2)
+
+#Trying to see if a line graph is better to show variation
+library(ggplot2)
+
+
+
