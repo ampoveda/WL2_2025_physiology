@@ -29,19 +29,20 @@ ggplot(Seedmass_data, aes(x=pop, y=Mass, color = date.meas)) +
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 
 ggplot(Seedmass_data, aes(x=Mass, fill = pop))+
-  geom_histogram()
+  geom_histogram() + theme(text=element_text(size=15)) + xlab("Seed Mass")
 ggsave("figures/SeedMass_Histogram.png", units="in", width=5,height=5)
 
 ggplot(Seedmass_data, aes(x=Mass, fill = date.meas))+
   geom_histogram()
 
 Seedmass_summary <- Seedmass_data %>%
-  group_by(date.meas)%>%
-  summarize(total.mass = sum(Mass, na.rm = TRUE))
+  group_by(date.collected)%>%
+  summarize(total.mass = sum(Mass, na.rm = TRUE)) %>% 
+  mutate(date.collected = mdy(date.collected))
 
-ggplot(Seedmass_summary, aes(x=date.meas, y=total.mass, group=1)) +
+ggplot(Seedmass_summary, aes(x=date.collected, y=total.mass, group=1)) +
   geom_line() +
   geom_point() +
-  theme(axis.text.x = element_text(angle = 45, hjust=1))
-ggsave("figures/SeedMass_Variance.png")
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) + theme(text=element_text(size=25))
+ggsave("figures/SeedMass_Variance Updated.png")
 
