@@ -317,7 +317,7 @@ P1 = data |>
   filter(date == "2025-08-07") |>
   ggplot(aes(x = phi_ps2, y = qamb)) +
   geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
-  theme_minimal()
+  theme_minimal() + theme(text=element_text(size=30))
 print(P1)
 ggsave("figures/Scatter2025-08-07.png",P1)
 
@@ -325,7 +325,7 @@ P1 = data_geno |>
   filter(date == "2025-07-23") |>
   ggplot(aes(x = phi_ps2, y = qamb, color = Type)) +
   geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
-  theme_minimal()
+  theme_minimal() + theme(text=element_text(size=30))
 print(P1)
 ggsave("figures/PHI_PS2 vs Qamb 2025-07-23.png",P1, dpi = 300)
 
@@ -398,7 +398,7 @@ P10 = data_geno |>
   filter(date == "2025-07-23", etr >= 0) |>
   ggplot(aes(x = etr, y = qamb, color = Type)) +
   geom_point() + geom_smooth(method=lm , color="red", se=FALSE) +
-  theme_minimal()
+  theme_minimal() +  theme(text=element_text(size=30))
 print(P10)
 ggsave("figures/etr vs qamb2025-07-23.png",P10, dpi = 300)
 
@@ -532,7 +532,7 @@ data_geno %>%
   facet_wrap(~date) +
   theme_minimal() + 
   labs(x = "Parental Genotypes", y = "Qamb")
-
+ggsave("figures/Parental Genotypes Qamb.png", dpi = 300)
 data_geno %>% 
   filter(Type == "Parent", !Genotype %in% c("LV1","YO11")) %>%
   ggplot( aes(x=Genotype, y=phi_ps2, group=Genotype)) + 
@@ -572,7 +572,6 @@ install.packages("rstatix")
 #Doing ANOVA for variables like etr, qamb, and phi_ps2
 data_geno %>%
   filter(Type == "Parent", !Genotype %in% c("LV1","YO11")) %>%
-  group_by(date) %>%
   anova_test(phi_ps2 ~ Genotype)
 
 data_geno %>%
@@ -625,8 +624,106 @@ data_geno %>%
   filter(Type == "F1", etr >= 0) %>%
   group_by(date) %>%
   anova_test(etr ~ Genotype)
+# Running ANOVA baseed on F2 populations 
+data_geno %>%
+  filter(Type == "F2", etr >= 0) %>%
+  #group_by(date) %>%
+  anova_test(etr ~ Genotype)
+
+data_geno %>%
+  filter(Type == "F1", etr >= 0) %>%
+  #group_by(date) %>%
+  anova_test(etr ~ Genotype)
+
+data_geno %>%
+  filter(Type == "Parent", etr >= 0) %>%
+  #group_by(date) %>%
+  anova_test(etr ~ Genotype)
 
 data_geno %>%
   filter(Type == "F2", etr >= 0) %>%
-  group_by(date) %>%
-  anova_test(etr ~ Genotype)
+  #group_by(date) %>%
+  anova_test(phi_ps2 ~ Genotype)
+
+data_geno %>%
+  filter(Type == "F1", etr >= 0) %>%
+  #group_by(date) %>%
+  anova_test(phi_ps2 ~ Genotype)
+
+data_geno %>%
+  filter(Type == "Parent", etr >= 0) %>%
+  #group_by(date) %>%
+  anova_test(phi_ps2 ~ Genotype)
+
+data_geno %>% group_by(Type, date) %>% summarise(n = n())
+
+data_geno %>% 
+  filter(Type == "Parent", etr >= 0, !Genotype %in% c("LV1","YO11")) %>%
+  ggplot( aes(x=Genotype, y=etr, group=Genotype)) + 
+  geom_boxplot() + 
+  geom_jitter(width = 0.1) + 
+  theme_minimal() + 
+  labs(x = "Parent Genotypes", y = "ETR") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(text=element_text(size=30))
+ggsave("figures/Parent Population ETR.png", dpi = 300)
+
+
+data_geno %>% 
+  filter(Type == "Parent", !Genotype %in% c("LV1","YO11")) %>%
+  ggplot( aes(x=Genotype, y=phi_ps2, group=Genotype)) + 
+  geom_boxplot() + 
+  geom_jitter(width = 0.1) + 
+  theme_minimal() + 
+  labs(x = "Parent Genotypes", y = "PhiPS2") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(text=element_text(size=30))
+ggsave("figures/Parent Genotypes PHIPS2.png", dpi = 300)
+
+
+data_geno %>% 
+  filter(Type == "F1", etr >= 0, !Genotype %in% c("LV1","YO11")) %>%
+  ggplot( aes(x=Genotype, y=etr, group=Genotype)) + 
+  geom_boxplot() + 
+  geom_jitter(width = 0.1) + 
+  theme_minimal() + 
+  labs(x = "F1 Genotypes", y = "ETR") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(text=element_text(size=30))
+ggsave("figures/F1 Population ETR.png", dpi = 300)
+
+data_geno %>% 
+  filter(Type == "F1", !Genotype %in% c("LV1","YO11")) %>%
+  ggplot( aes(x=Genotype, y=phi_ps2, group=Genotype)) + 
+  geom_boxplot() + 
+  geom_jitter(width = 0.1) + 
+  theme_minimal() + 
+  labs(x = "F1 Genotypes", y = "PhiPS2") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(text=element_text(size=30))
+ggsave("figures/F1 Population PHIPS2.png", dpi = 300)
+
+
+# Ask Rishav about these plots
+data_geno %>% 
+  filter(Type == "F2", etr >= 0, !Genotype %in% c("LV1","YO11")) %>%
+  ggplot( aes(x=Genotype, y=etr, group=Genotype)) + 
+  geom_boxplot() + 
+  geom_jitter(width = 0.1) + 
+  theme_minimal() + 
+  labs(x = "F2 Genotypes", y = "ETR") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(text=element_text(size=15))
+ggsave("figures/F2 Population ETR.png", dpi = 300)
+
+data_geno %>% 
+  filter(Type == "F2", !Genotype %in% c("LV1","YO11")) %>%
+  ggplot( aes(x=Genotype, y=phi_ps2, group=Genotype)) + 
+  geom_boxplot() + 
+  geom_jitter(width = 0.1) + 
+  theme_minimal() + 
+  labs(x = "F2 Genotypes", y = "PhiPS2") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(text=element_text(size=15))
+ggsave("figures/F2 Population PHIPS2.png", dpi = 300)
+
+
+posthoc_test(data_geno, phi_ps2 ~ Genotype, significance = 0.05)
+
+posthoc_test(data_geno, etr ~ Genotype, significance = 0.05)
+
+
