@@ -669,7 +669,7 @@ ggsave("figures/Parent Population ETR.png", dpi = 300)
 
 
 data_geno %>% 
-  filter(Type == "Parent", !Genotype %in% c("LV1","YO11")) %>%
+  filter(Type == "Parent", phi_ps2 >=0, !Genotype %in% c("LV1","YO11")) %>%
   ggplot( aes(x=Genotype, y=phi_ps2, group=Genotype)) + 
   geom_boxplot() + 
   geom_jitter(width = 0.1) + 
@@ -677,6 +677,11 @@ data_geno %>%
   labs(x = "Parent Genotypes", y = "PhiPS2") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(text=element_text(size=30))
 ggsave("figures/Parent Genotypes PHIPS2.png", dpi = 300)
+
+data_geno %>% 
+  filter(Type == "Parent", !Genotype %in% c("LV1","YO11")) %>%
+posthoc_test( etr ~ Genotype) %>% 
+  print(n=28) %>% filter(p < 0.05)
 
 
 data_geno %>% 
@@ -690,7 +695,18 @@ data_geno %>%
 ggsave("figures/F1 Population ETR.png", dpi = 300)
 
 data_geno %>% 
-  filter(Type == "F1", !Genotype %in% c("LV1","YO11")) %>%
+  filter(Type == "F1", etr >= 0) %>%
+  posthoc_test( etr ~ Genotype) %>% 
+  print(n=28) %>% filter(p < 0.05) 
+
+data_geno %>% 
+  filter(Type == "F1", etr >= 0, phi_ps2 >= 0) %>%
+  posthoc_test( phi_ps2 ~ Genotype) %>% 
+  print(n=28) %>% filter(p < 0.05) 
+
+
+data_geno %>% 
+  filter(Type == "F1", phi_ps2 >= 0, !Genotype %in% c("LV1","YO11")) %>%
   ggplot( aes(x=Genotype, y=phi_ps2, group=Genotype)) + 
   geom_boxplot() + 
   geom_jitter(width = 0.1) + 
@@ -711,6 +727,17 @@ data_geno %>%
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(text=element_text(size=15))
 ggsave("figures/F2 Population ETR.png", dpi = 300)
 
+
+data_geno %>% 
+  filter(Type == "F2", phi_ps2 >= 0) %>%
+  posthoc_test( phi_ps2 ~ Genotype) %>% 
+  print(n=28) %>% filter(p < 0.05) 
+
+data_geno %>% 
+  filter(Type == "F2", etr >= 0) %>%
+  posthoc_test( etr ~ Genotype) %>% 
+  print(n=28) %>% filter(p < 0.05) 
+
 data_geno %>% 
   filter(Type == "F2", !Genotype %in% c("LV1","YO11")) %>%
   ggplot( aes(x=Genotype, y=phi_ps2, group=Genotype)) + 
@@ -726,4 +753,47 @@ posthoc_test(data_geno, phi_ps2 ~ Genotype, significance = 0.05)
 
 posthoc_test(data_geno, etr ~ Genotype, significance = 0.05)
 
+library(rstatix)
+library(ggrepel)
+install.packages("ggrepel")
+master_meta <- read_csv("Data/2025_Genotype_Type_Info.csv") |> rename(unique_id = Unique.ID) |> mutate(unique_id = as.numeric(unique_id)) #this file will have all the genotype and type info for each individual (unique ID)
+data_geno = left_join(x = data, y = master_meta, by = "unique_id")
 
+plot_data = data_geno |>
+  filter(Type == "Parent", !Genotype %in% c("LV1","YO11")) |>
+  filter(etr > 0, phi_ps2 > 0) |>
+  select(Genotype, etr, phi_ps2) |>
+  group_by(Genotype) |>
+  get_summary_stats(etr, phi_ps2, type = "common") |>
+  select(Genotype, variable, mean, sd, ci, se) |>
+  pivot_wider(names_from = variable, values_from = c(mean, sd, ci, se))
+
+plot_data |>
+  ggplot(aes(x = mean_phi_ps2, mean_etr, label = Genotype)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean_etr - se_etr, ymax = mean_etr + se_etr)) +
+  geom_text_repel(size = 8) +
+  geom_errorbarh(aes(xmin = mean_phi_ps2 - se_phi_ps2, xmax = mean_phi_ps2 + se_phi_ps2)) +
+  theme_minimal() +
+  labs(x = "Phi-PSII", y = "ETR")
+ggsave("figures/ Parent Population PHIPS2 vs ETR.png", dpi= 300)
+
+
+plot_data_f1 = data_geno |>
+  filter(Type == "F1") |>
+  filter(etr > 0, phi_ps2 > 0) |>
+  select(Genotype, etr, phi_ps2) |>
+  group_by(Genotype) |>
+  get_summary_stats(etr, phi_ps2, type = "common") |>
+  select(Genotype, variable, mean, sd, ci, se) |>
+  pivot_wider(names_from = variable, values_from = c(mean, sd, ci, se))
+
+plot_data_f1 |>
+  ggplot(aes(x = mean_phi_ps2, mean_etr, label = Genotype)) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = mean_etr - se_etr, ymax = mean_etr + se_etr)) +
+  geom_text_repel(size = 8) +
+  geom_errorbarh(aes(xmin = mean_phi_ps2 - se_phi_ps2, xmax = mean_phi_ps2 + se_phi_ps2)) +
+  theme_minimal() +
+  labs(x = "Phi-PSII", y = "ETR")
+ggsave("figures/F1 Population PHIPS2 vs ETR.png", dpi = 300)
