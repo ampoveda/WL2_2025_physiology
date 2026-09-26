@@ -46,3 +46,19 @@ ggplot(Seedmass_summary, aes(x=date.collected, y=total.mass, group=1)) +
   theme(axis.text.x = element_text(angle = 45, hjust=1)) + theme(text=element_text(size=25))
 ggsave("figures/SeedMass_Variance Updated.png")
 
+
+# Trying to make a violin plot using the seed mass data per Dr Maloof Suggestion
+ggplot(Seedmass_data, aes(x=Mass,y = date.collected, fill = pop)) + geom_violin() + xlab("Seed Mass")
+
+ggplot(Seedmass_data, aes(x=Mass,y = date.collected, fill = pop)) +
+  geom_boxplot() 
+
+ggplot(Seedmass_data, aes(x = pop, y = Mass, fill = pop)) +
+  geom_violin(width = 1.0, linewidth = 1.0) +
+  xlab("Seed Mass") +
+  theme_classic()
+ggplot(Seedmass_data, aes(x = Mass, y = pop, fill = pop)) +
+  geom_violin(width = 1.2, linewidth = 1.2) +
+  xlab("Seed Mass") +
+  theme_classic()
+
